@@ -8,16 +8,17 @@ const web3_bnb = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545');
 const app = express()
 app.use(express.json());
 const controller= require('./controller/controller.wallet.js');
+//const controller= require('./controller/controller.bnb.js');
 const receiptApi = require('./model/model.wallet.js');
 const bodyParser =require('body-parser');
-const port = 3000
+const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }))
 // fetch a balance
-app.get('/balance', controller.balance);
+app.get('/ethbalance', controller.ethbalance);
 
 // For Transaction
-app.post('/transaction',controller.transaction);
+app.post('/ethtransaction',controller.ethtransaction);
 
 // for Binance fetch balance
 app.get('/bnbBalance',controller.bnbBalance);
