@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const Web3 = require("web3");
 const mongoose = require('mongoose')
 const path = require('path');
@@ -10,7 +10,7 @@ const bodyParser =require('body-parser');
 // app.use(bodyParser.urlencoded({ extended: false }))
 
 // Ropsten fetch Balance
-exports.balance = function(req,res){
+exports.ethbalance = function(req,res){
         web3.eth.getBalance(process.env.from_address, async (err, result) => {
             if (err) {
                console.log(err);
@@ -23,7 +23,7 @@ exports.balance = function(req,res){
 
 
 //Ropsten for Transaction
-exports.transaction = function(req,res){
+exports.ethtransaction = function(req,res){
   const transaction_from = req.body.transaction_from;
   const transaction_to = req.body.transaction_to;
   const value = req.body.value;
@@ -34,11 +34,47 @@ exports.transaction = function(req,res){
       const SignedTransaction = await web3.eth.accounts.signTransaction({
            to: transaction_to, //process.env.to_address,
            value: value,
-           gas: 2000010,
+           gas: 200000,
            nonce: web3.eth.getTransactionCount(transaction_from)
       },   process.env.Private_Key);
     
       web3.eth.sendSignedTransaction(SignedTransaction.rawTransaction).then((receipt) => {
+            res.json(receipt)
+
+            const deatils = new receiptApi ({
+              _id:new mongoose.Types.ObjectId(),
+              transaction_from:transaction_from,
+              transaction_to:transaction_to,
+              transaction_hash: transaction_hash,
+              value:value
+          })
+          deatils.save()
+      })
+    
+     
+    }
+    eth_transaction();
+    }
+
+   
+
+exports.bnbTransaction = function(req,res){
+  const transaction_from = req.body.transaction_from;
+  const transaction_to = req.body.transaction_to;
+  const value = req.body.value;
+  const transaction_hash = req.body.transaction_hash;
+
+    async function eth_transaction(){
+        const value = web3.utils.toWei(req.body.value, 'ether')   
+      const SignedTransaction = await web3_bnb.eth.accounts.signTransaction({
+           to: transaction_to, //process.env.to_address,
+           value: value,
+           gas: 5000000,
+           gasPrice: 18e9,
+           nonce: web3_bnb.eth.getTransactionCount(transaction_from)
+      },   process.env.Private_Key);
+    
+      web3_bnb.eth.sendSignedTransaction(SignedTransaction.rawTransaction).then((receipt) => {
             res.json(receipt)
 
             const deatils = new receiptApi ({
@@ -67,24 +103,3 @@ exports.transaction = function(req,res){
          res.json(balance + " BNB");
     });    
 }
-
-// Binance Transaction
-exports.bnbTransaction = function(req,res){
-  async function eth_transaction(){  
-    var SignedTransaction = await web3_bnb.eth.accounts.signTransaction({
-         to:  process.env.to_address,
-         value: '0.005',
-         gas: 5000000,
-         gasPrice: 18e9,
-         nonce: web3_bnb.eth.getTransactionCount( process.env.from_address)
-    },   process.env.Private_Key);
-  
-    web3_bnb.eth.sendSignedTransaction(SignedTransaction.rawTransaction).then((receipt)=> {
-          res.json(receipt)
-;
-    })
-  }
-  eth_transaction();
-  }
-
-
